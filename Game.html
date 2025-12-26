@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>聖誕小遊戲</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #fff0f5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  #gameButton {
+    position: absolute;
+    padding: 15px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 10px;
+    background: #ff69b4;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  #message {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #c71585;
+  }
+</style>
+</head>
+<body>
+
+<button id="gameButton">按我！</button>
+<div id="message"></div>
+
+<script>
+const btn = document.getElementById("gameButton");
+const message = document.getElementById("message");
+
+let step = 0; // 記錄按鈕跳格步數
+const positions = [
+  {top: "50%", left: "50%", transform: "translate(-50%, -50%)"}, // 中
+  {top: "10%", left: "10%", transform: "translate(0, 0)"},         // 左上
+  {top: "10%", left: "90%", transform: "translate(-100%, 0)"},     // 右上
+  {top: "90%", left: "90%", transform: "translate(-100%, -100%)"}, // 右下
+  {top: "90%", left: "10%", transform: "translate(0, -100%)"},     // 左下
+  {top: "50%", left: "50%", transform: "translate(-50%, -50%)"}    // 中
+];
+
+btn.addEventListener("click", () => {
+  step++;
+  if(step <= positions.length) {
+    const pos = positions[step-1];
+    btn.style.top = pos.top;
+    btn.style.left = pos.left;
+    btn.style.transform = pos.transform;
+  }
+  if(step === positions.length) {
+    // 最後顯示祝福訊息
+    message.innerHTML = "🎄 聖誕節快樂！憨寶寶，我愛妳 ❤️";
+  }
+});
+</script>
+
+</body>
+</html>
