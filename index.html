@@ -2,71 +2,168 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>聖誕小遊戲</title>
+<title>🎄 聖誕驚喜 🎄</title>
+
 <style>
-  body {
-    font-family: sans-serif;
-    background: #fff0f5;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+/* ===== 基本設定 ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ===== 動態夢幻背景 ===== */
+body {
+  background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+  background-size: 800% 800%;
+  animation: bgMove 20s ease infinite;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== 星光粒子 ===== */
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  opacity: 0.8;
+  border-radius: 50%;
+  animation: twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%,100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* ===== 雪花 ===== */
+.snow {
+  position: absolute;
+  top: -10px;
+  color: white;
+  user-select: none;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh);
   }
-  #gameButton {
-    position: absolute;
-    padding: 15px 25px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 10px;
-    background: #ff69b4;
-    color: white;
-    border: none;
-    transition: all 0.3s ease;
-  }
-  #message {
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #c71585;
-  }
+}
+
+/* ===== 按鈕 ===== */
+#magicBtn {
+  position: absolute;
+  padding: 18px 30px;
+  font-size: 20px;
+  border-radius: 15px;
+  border: none;
+  background: linear-gradient(45deg, #ff4d6d, #ff85a1);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+}
+
+#magicBtn.jump {
+  transform: scale(1.3) rotate(360deg);
+  box-shadow: 0 0 40px rgba(255,255,255,1);
+}
+
+/* ===== 最終文字 ===== */
+#finalMessage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  text-shadow:
+    0 0 10px #fff,
+    0 0 30px #ff69b4,
+    0 0 60px #ff1493;
+  animation: none;
+}
+
+@keyframes popIn {
+  0%   { transform: translate(-50%, -50%) scale(0); }
+  60%  { transform: translate(-50%, -50%) scale(1.3); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
 </style>
 </head>
+
 <body>
 
-<button id="gameButton">按我！</button>
-<div id="message"></div>
+<button id="magicBtn">點我 🎁</button>
+<div id="finalMessage">🎄<br>聖誕節快樂！<br>憨寶寶，我愛妳 ❤️</div>
 
 <script>
-const btn = document.getElementById("gameButton");
-const message = document.getElementById("message");
+/* ===== 設定 ===== */
+const TOTAL_CLICKS = 12; // ← 想點更多次就調大
+let count = 0;
 
-let step = 0; // 記錄按鈕跳格步數
-const positions = [
-  {top: "50%", left: "50%", transform: "translate(-50%, -50%)"}, // 中
-  {top: "10%", left: "10%", transform: "translate(0, 0)"},         // 左上
-  {top: "10%", left: "90%", transform: "translate(-100%, 0)"},     // 右上
-  {top: "90%", left: "90%", transform: "translate(-100%, -100%)"}, // 右下
-  {top: "90%", left: "10%", transform: "translate(0, -100%)"},     // 左下
-  {top: "50%", left: "50%", transform: "translate(-50%, -50%)"}    // 中
-];
+const btn = document.getElementById("magicBtn");
+const msg = document.getElementById("finalMessage");
 
+/* ===== 隨機位置 ===== */
+function randomPosition() {
+  const x = Math.random() * 80 + 5;
+  const y = Math.random() * 80 + 5;
+  btn.style.left = x + "%";
+  btn.style.top = y + "%";
+}
+
+/* ===== 按鈕點擊 ===== */
 btn.addEventListener("click", () => {
-  step++;
-  if(step <= positions.length) {
-    const pos = positions[step-1];
-    btn.style.top = pos.top;
-    btn.style.left = pos.left;
-    btn.style.transform = pos.transform;
-  }
-  if(step === positions.length) {
-    // 最後顯示祝福訊息
-    message.innerHTML = "🎄 聖誕節快樂！憨寶寶，我愛妳 ❤️";
+  count++;
+
+  btn.classList.remove("jump");
+  void btn.offsetWidth;
+  btn.classList.add("jump");
+
+  randomPosition();
+
+  if (count >= TOTAL_CLICKS) {
+    btn.style.display = "none";
+    msg.style.animation = "popIn 1.2s ease forwards";
   }
 });
+
+/* ===== 初始位置 ===== */
+randomPosition();
+
+/* ===== 生成雪花 ===== */
+for (let i = 0; i < 50; i++) {
+  const snow = document.createElement("div");
+  snow.className = "snow";
+  snow.innerText = "❄";
+  snow.style.left = Math.random() * 100 + "vw";
+  snow.style.fontSize = Math.random() * 20 + 10 + "px";
+  snow.style.animationDuration = Math.random() * 5 + 5 + "s";
+  document.body.appendChild(snow);
+}
+
+/* ===== 生成星光 ===== */
+for (let i = 0; i < 80; i++) {
+  const star = document.createElement("div");
+  star.className = "star";
+  star.style.left = Math.random() * 100 + "vw";
+  star.style.top = Math.random() * 100 + "vh";
+  star.style.animationDelay = Math.random() * 3 + "s";
+  document.body.appendChild(star);
+}
 </script>
 
 </body>
