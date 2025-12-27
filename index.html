@@ -2,168 +2,165 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>🎄 聖誕驚喜 🎄</title>
+<title>🎄 聖誕究極驚喜 🎄</title>
 
 <style>
-/* ===== 基本設定 ===== */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background: radial-gradient(circle at top, #2b1055, #000);
   font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== 動態夢幻背景 ===== */
-body {
-  background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
-  background-size: 800% 800%;
-  animation: bgMove 20s ease infinite;
+/* ===== 背景動畫 ===== */
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(120deg, rgba(255,105,180,.15), transparent 70%),
+    linear-gradient(240deg, rgba(0,255,255,.12), transparent 70%);
+  animation:bgShift 12s infinite alternate;
 }
-
-@keyframes bgMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* ===== 星光粒子 ===== */
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: white;
-  opacity: 0.8;
-  border-radius: 50%;
-  animation: twinkle 3s infinite ease-in-out;
-}
-
-@keyframes twinkle {
-  0%,100% { opacity: 0.2; }
-  50% { opacity: 1; }
-}
-
-/* ===== 雪花 ===== */
-.snow {
-  position: absolute;
-  top: -10px;
-  color: white;
-  user-select: none;
-  pointer-events: none;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh);
-  }
+@keyframes bgShift{
+  0%{filter:hue-rotate(0deg)}
+  100%{filter:hue-rotate(360deg)}
 }
 
 /* ===== 按鈕 ===== */
-#magicBtn {
-  position: absolute;
-  padding: 18px 30px;
-  font-size: 20px;
-  border-radius: 15px;
-  border: none;
-  background: linear-gradient(45deg, #ff4d6d, #ff85a1);
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
-  transition: transform 0.6s ease, box-shadow 0.6s ease;
+#btn{
+  position:absolute;
+  padding:18px 34px;
+  font-size:20px;
+  border-radius:18px;
+  border:none;
+  cursor:pointer;
+  color:white;
+  background:linear-gradient(45deg,#ff4d6d,#ff9ecd);
+  box-shadow:0 0 25px rgba(255,105,180,.9);
+  transform-style:preserve-3d;
 }
 
-#magicBtn.jump {
-  transform: scale(1.3) rotate(360deg);
-  box-shadow: 0 0 40px rgba(255,255,255,1);
-}
-
-/* ===== 最終文字 ===== */
-#finalMessage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  font-size: 48px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
+/* ===== 最終訊息 ===== */
+#final{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-size:56px;
+  text-align:center;
+  font-weight:900;
+  color:white;
   text-shadow:
-    0 0 10px #fff,
-    0 0 30px #ff69b4,
-    0 0 60px #ff1493;
-  animation: none;
+    0 0 15px #fff,
+    0 0 40px #ff69b4,
+    0 0 80px #ff1493;
 }
 
-@keyframes popIn {
-  0%   { transform: translate(-50%, -50%) scale(0); }
-  60%  { transform: translate(-50%, -50%) scale(1.3); }
-  100% { transform: translate(-50%, -50%) scale(1); }
+/* ===== 粒子 ===== */
+.particle{
+  position:absolute;
+  pointer-events:none;
+  will-change:transform,opacity;
 }
 </style>
 </head>
 
 <body>
 
-<button id="magicBtn">點我 🎁</button>
-<div id="finalMessage">🎄<br>聖誕節快樂！<br>憨寶寶，我愛妳 ❤️</div>
+<button id="btn">點我 🎁</button>
+<div id="final">🎄<br>聖誕節快樂！<br>憨寶寶，我愛妳 ❤️</div>
 
 <script>
-/* ===== 設定 ===== */
-const TOTAL_CLICKS = 12; // ← 想點更多次就調大
+const btn = document.getElementById("btn");
+const final = document.getElementById("final");
+
+const MAX = 16;
 let count = 0;
 
-const btn = document.getElementById("magicBtn");
-const msg = document.getElementById("finalMessage");
-
 /* ===== 隨機位置 ===== */
-function randomPosition() {
-  const x = Math.random() * 80 + 5;
-  const y = Math.random() * 80 + 5;
-  btn.style.left = x + "%";
-  btn.style.top = y + "%";
+function moveBtn(){
+  const x = Math.random()*80+5;
+  const y = Math.random()*80+5;
+  btn.style.left = x+"%";
+  btn.style.top = y+"%";
 }
 
-/* ===== 按鈕點擊 ===== */
-btn.addEventListener("click", () => {
+/* ===== 粒子爆炸 ===== */
+function explode(x,y){
+  const shapes = ["💖","✨","❄","⭐"];
+  for(let i=0;i<40;i++){
+    const p = document.createElement("div");
+    p.className="particle";
+    p.textContent = shapes[Math.floor(Math.random()*shapes.length)];
+    document.body.appendChild(p);
+
+    const angle = Math.random()*Math.PI*2;
+    const speed = Math.random()*120+40;
+
+    const dx = Math.cos(angle)*speed;
+    const dy = Math.sin(angle)*speed;
+
+    p.style.left = x+"px";
+    p.style.top = y+"px";
+    p.style.fontSize = Math.random()*18+12+"px";
+
+    p.animate([
+      {transform:"translate(0,0)",opacity:1},
+      {transform:`translate(${dx}px,${dy}px) scale(0)`,opacity:0}
+    ],{
+      duration:900+Math.random()*600,
+      easing:"cubic-bezier(.17,.67,.3,1)",
+      fill:"forwards"
+    });
+
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ===== 畫面震動 ===== */
+function shake(){
+  document.body.animate([
+    {transform:"translate(0,0)"},
+    {transform:"translate(-4px,3px)"},
+    {transform:"translate(3px,-4px)"},
+    {transform:"translate(0,0)"}
+  ],{duration:180});
+}
+
+/* ===== 點擊事件 ===== */
+btn.addEventListener("click",(e)=>{
   count++;
 
-  btn.classList.remove("jump");
-  void btn.offsetWidth;
-  btn.classList.add("jump");
+  // 強制每次都重播動畫
+  btn.animate([
+    {transform:"scale(1) rotateX(0) rotateY(0)"},
+    {transform:"scale(1.4) rotateX(360deg) rotateY(360deg)"},
+    {transform:"scale(1)"}
+  ],{
+    duration:700,
+    easing:"ease-out"
+  });
 
-  randomPosition();
+  explode(e.clientX,e.clientY);
+  shake();
+  moveBtn();
 
-  if (count >= TOTAL_CLICKS) {
-    btn.style.display = "none";
-    msg.style.animation = "popIn 1.2s ease forwards";
+  if(count>=MAX){
+    btn.remove();
+    final.animate([
+      {transform:"translate(-50%,-50%) scale(0)",opacity:0},
+      {transform:"translate(-50%,-50%) scale(1.3)",opacity:1},
+      {transform:"translate(-50%,-50%) scale(1)"}
+    ],{duration:1200,easing:"ease-out",fill:"forwards"});
   }
 });
 
-/* ===== 初始位置 ===== */
-randomPosition();
-
-/* ===== 生成雪花 ===== */
-for (let i = 0; i < 50; i++) {
-  const snow = document.createElement("div");
-  snow.className = "snow";
-  snow.innerText = "❄";
-  snow.style.left = Math.random() * 100 + "vw";
-  snow.style.fontSize = Math.random() * 20 + 10 + "px";
-  snow.style.animationDuration = Math.random() * 5 + 5 + "s";
-  document.body.appendChild(snow);
-}
-
-/* ===== 生成星光 ===== */
-for (let i = 0; i < 80; i++) {
-  const star = document.createElement("div");
-  star.className = "star";
-  star.style.left = Math.random() * 100 + "vw";
-  star.style.top = Math.random() * 100 + "vh";
-  star.style.animationDelay = Math.random() * 3 + "s";
-  document.body.appendChild(star);
-}
+/* 初始 */
+moveBtn();
 </script>
 
 </body>
